@@ -64,7 +64,7 @@ export default function RockFormation() {
       {/* YASHAS — carved into the rock face */}
       <Text
         ref={textRef}
-        font="/fonts/BebasNeue.woff2"
+        font="https://fonts.gstatic.com/s/bebas-neue/v9/JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff"
         fontSize={1.9}
         letterSpacing={0.12}
         anchorX="center"

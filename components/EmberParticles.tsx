@@ -58,7 +58,8 @@ const fragmentShader = /* glsl */ `
 `
 
 export default function EmberParticles() {
-  const matRef = useRef<THREE.ShaderMaterial>(null!)
+  const matRef   = useRef<THREE.ShaderMaterial>(null!)
+  const timerRef = useRef(new THREE.Timer())
 
   const [geo, uniforms] = useMemo(() => {
     const positions = new Float32Array(COUNT * 3) // all zeros — shader handles position
@@ -92,8 +93,9 @@ export default function EmberParticles() {
     return [g, u]
   }, [])
 
-  useFrame(({ clock }) => {
-    matRef.current.uniforms.uTime.value = clock.getElapsedTime()
+  useFrame(() => {
+    timerRef.current.update()
+    matRef.current.uniforms.uTime.value = timerRef.current.getElapsed()
   })
 
   return (

@@ -69,7 +69,7 @@ function Card({ project, position, rotation, index }: {
 
       {/* Title etched in gold */}
       <Text
-        font="/fonts/BebasNeue.woff2"
+        font="https://fonts.gstatic.com/s/bebas-neue/v9/JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff"
         fontSize={0.5}
         letterSpacing={0.08}
         color="#c9a84c"

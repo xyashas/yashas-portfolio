@@ -83,8 +83,9 @@ const fragmentShader = /* glsl */ `
 `
 
 export default function GrassField() {
-  const meshRef = useRef<THREE.InstancedMesh>(null!)
-  const matRef  = useRef<THREE.ShaderMaterial>(null!)
+  const meshRef  = useRef<THREE.InstancedMesh>(null!)
+  const matRef   = useRef<THREE.ShaderMaterial>(null!)
+  const timerRef = useRef(new THREE.Timer())
 
   const geo = useMemo(() => createBladeGeometry(), [])
 
@@ -110,8 +111,9 @@ export default function GrassField() {
     meshRef.current.instanceMatrix.needsUpdate = true
   }, [])
 
-  useFrame(({ clock }) => {
-    matRef.current.uniforms.uTime.value = clock.getElapsedTime()
+  useFrame(() => {
+    timerRef.current.update()
+    matRef.current.uniforms.uTime.value = timerRef.current.getElapsed()
   })
 
   return (

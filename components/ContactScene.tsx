@@ -49,7 +49,7 @@ export default function ContactScene() {
 
       {/* GET IN TOUCH */}
       <Text
-        font="/fonts/BebasNeue.woff2"
+        font="https://fonts.gstatic.com/s/bebas-neue/v9/JTUSjIg69CK48gW7PXoo9Wdhyzbi.woff"
         fontSize={1.1}
         letterSpacing={0.18}
         color="#e8e6e0"

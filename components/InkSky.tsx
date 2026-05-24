@@ -73,15 +73,17 @@ const fragmentShader = /* glsl */ `
 `
 
 export default function InkSky() {
-  const matRef = useRef<THREE.ShaderMaterial>(null!)
+  const matRef   = useRef<THREE.ShaderMaterial>(null!)
+  const timerRef = useRef(new THREE.Timer())
 
   const uniforms = useMemo(
     () => ({ uTime: { value: 0 } }),
     []
   )
 
-  useFrame(({ clock }) => {
-    matRef.current.uniforms.uTime.value = clock.getElapsedTime()
+  useFrame(() => {
+    timerRef.current.update()
+    matRef.current.uniforms.uTime.value = timerRef.current.getElapsed()
   })
 
   return (
