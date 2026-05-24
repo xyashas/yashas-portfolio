@@ -3,11 +3,10 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 750;
+const PARTICLE_COUNT = 650;
 const CAM_Z = 4.0;
 const VHH = Math.tan(THREE.MathUtils.degToRad(30)) * CAM_Z; // ~2.31
 
-// Box-Muller — concentrated distribution behind the name
 function gauss(): number {
   const u = 1 - Math.random();
   const v = Math.random();
@@ -29,24 +28,25 @@ const vertexShader = /* glsl */ `
 
   varying float vProgress;
   varying float vDepth;
+  varying float vCenterFade;
 
   void main() {
     float t = mod(uTime * aSpeed + aLife, 1.0);
-    vProgress = t;
-    vDepth    = aDepth;
+    vProgress   = t;
+    vDepth      = aDepth;
+    // Exponential center fade — particles far from center are dimmer
+    vCenterFade = exp(-aStartX * aStartX * 5.0);
 
     float VHH = ${VHH.toFixed(4)};
 
-    // Near particles (aDepth=1) shift more; far (aDepth=0) shift less — visible depth separation
     float px = 0.08 + aDepth * 0.42;
-    float py = px * 0.5;
 
     float x = aStartX * uAspect * VHH
               + sin(t * 6.2832 + aLife * 11.3) * aDriftX
               + uMouse.x * VHH * px;
 
     float y = -VHH + t * VHH * 2.0
-              + uMouse.y * VHH * py;
+              + uMouse.y * VHH * px * 0.5;
 
     float z = (aDepth - 0.5) * 1.2;
 
@@ -59,27 +59,31 @@ const vertexShader = /* glsl */ `
 const fragmentShader = /* glsl */ `
   varying float vProgress;
   varying float vDepth;
+  varying float vCenterFade;
 
   void main() {
-    vec2  coord = gl_PointCoord - 0.5;
-    float d     = length(coord);
-    if (d > 0.5) discard;
+    vec2 coord = gl_PointCoord - 0.5;
 
-    // Gaussian blob — ink diffusing in water, not a hard circle
-    float shape = exp(-d * d * 6.5);
+    // Angular wobble breaks the perfect circle into an irregular ink blob
+    float angle   = atan(coord.y, coord.x);
+    float wobble  = 1.0
+      + 0.28 * sin(angle * 2.3 + vDepth  * 4.7)
+      + 0.13 * sin(angle * 3.8 + vProgress * 2.1);
+    float d = length(coord) * wobble;
 
-    // Bell-curve opacity over lifetime: bleeds in from below, dissolves at top
-    float life = sin(vProgress * 3.14159);
+    // Soft gaussian — no hard discard, ink bleeds at edges naturally
+    float shape = exp(-d * d * 9.5);
 
-    // Subtle organic texture so blobs don't look uniform
-    float organic = 0.82 + 0.18 * sin(gl_PointCoord.x * 17.3 + gl_PointCoord.y * 11.7);
+    // Bell-curve opacity over lifetime
+    float life  = sin(vProgress * 3.14159);
 
-    float alpha = shape * life * organic * (0.32 + vDepth * 0.52);
+    // Dense center, sparse edges; near particles more opaque than far
+    float alpha = shape * life * vCenterFade * (0.42 + vDepth * 0.44);
 
-    // Deep amber (far/dense ink) → warm cream (near/fully diffused)
-    vec3 deepAmber = vec3(0.820, 0.530, 0.160);
-    vec3 warmCream = vec3(0.980, 0.940, 0.875);
-    vec3 color = mix(deepAmber, warmCream, vDepth);
+    // Warm amber → muted gold — ink pigment, not starlight
+    vec3 amber = vec3(0.820, 0.560, 0.180);
+    vec3 gold  = vec3(0.788, 0.659, 0.298);
+    vec3 color = mix(amber, gold, vDepth * 0.65);
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -101,7 +105,7 @@ export default function InkCanvas() {
     camera.position.z = CAM_Z;
     const scene = new THREE.Scene();
 
-    const positions = new Float32Array(PARTICLE_COUNT * 3); // all zeros — positions computed in shader
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
     const aLife    = new Float32Array(PARTICLE_COUNT);
     const aSpeed   = new Float32Array(PARTICLE_COUNT);
     const aSize    = new Float32Array(PARTICLE_COUNT);
@@ -111,14 +115,16 @@ export default function InkCanvas() {
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       aLife[i]  = Math.random();
-      aSpeed[i] = 0.018 + Math.random() * 0.028; // very slow drift
-      // Bimodal: many fine particles, fewer large ink blobs
-      aSize[i]  = Math.random() < 0.72
-        ? 1.5 + Math.random() * 3.5   // fine: 1.5–5 CSS px
-        : 6.0 + Math.random() * 9.0;  // blob: 6–15 CSS px
-      aDriftX[i] = (Math.random() - 0.5) * 0.22;
-      // Gaussian: most particles cluster near center (behind the name)
-      aStartX[i] = Math.max(-1.05, Math.min(1.05, gauss() * 0.4));
+      aSpeed[i] = 0.018 + Math.random() * 0.026;
+      // No tiny sparkle-sized particles — minimum 4px, mix of medium blobs and large drops
+      aSize[i]  = Math.random() < 0.70
+        ? 4  + Math.random() * 7   // medium blobs: 4–11 CSS px
+        : 11 + Math.random() * 10; // ink drops: 11–21 CSS px
+      aDriftX[i] = (Math.random() - 0.5) * 0.20;
+      // Layered Gaussian: tight core (65%) + wider halo (35%)
+      aStartX[i] = Math.max(-1.05, Math.min(1.05,
+        gauss() * (Math.random() < 0.65 ? 0.26 : 0.52)
+      ));
       aDepth[i]  = Math.random();
     }
 
@@ -144,7 +150,9 @@ export default function InkCanvas() {
       uniforms,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      // NormalBlending: particles composite as warm pigment over the dark background,
+      // not as additive light sources — eliminates the star/sparkle appearance
+      blending: THREE.NormalBlending,
     });
 
     const points = new THREE.Points(geo, mat);
@@ -174,7 +182,7 @@ export default function InkCanvas() {
 
     const tick = () => {
       animId = requestAnimationFrame(tick);
-      smoothMouse.lerp(targetMouse, 0.10); // was 0.04 — more responsive now
+      smoothMouse.lerp(targetMouse, 0.10);
       uniforms.uTime.value  = clock.getElapsedTime();
       uniforms.uMouse.value.copy(smoothMouse);
       renderer.render(scene, camera);

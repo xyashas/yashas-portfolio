@@ -4,12 +4,21 @@ import { motion } from "framer-motion";
 
 export default function HeroName() {
   return (
-    <div className="relative flex flex-col items-center select-none">
-      {/* The name — resolves from ink-diffuse to sharp over 1.2s */}
+    /*
+     * inline-flex shrink-wraps to the natural text width.
+     * This keeps the gold line directly beneath the name
+     * regardless of viewport size, without relying on any
+     * parent container's width.
+     */
+    <div
+      className="select-none"
+      style={{ display: "inline-flex", flexDirection: "column", alignItems: "center" }}
+    >
       <motion.h1
         className="font-bebas text-ash-white leading-none tracking-[0.15em]"
         style={{
-          fontSize: "clamp(160px, 28vw, 580px)",
+          fontSize: "clamp(80px, 21vw, 420px)",
+          whiteSpace: "nowrap",
           willChange: "opacity, filter",
         }}
         initial={{ opacity: 0, filter: "blur(48px)" }}
@@ -22,7 +31,7 @@ export default function HeroName() {
         YASHAS
       </motion.h1>
 
-      {/* Single gold accent line — draws in after name lands */}
+      {/* Gold accent — width matches the inline-flex container = natural text width */}
       <motion.div
         className="bg-gold"
         style={{
