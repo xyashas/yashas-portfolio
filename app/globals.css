@@ -2,8 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
+html, body, #__next {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
-  background-color: #0a0a0f;
+  background: #0a0a0f;
+}
+
+canvas {
+  display: block;
+}
+
+/* Act 2 bio text */
+.scroll-text {
+  font-family: var(--font-bebas), sans-serif;
+  color: #e8e6e0;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Project card inner HTML */
+.card-inner {
+  font-family: system-ui, sans-serif;
+  background: rgba(10, 10, 15, 0.85);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 2px;
+  padding: 18px 20px;
+  width: 220px;
+  color: #e8e6e0;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.card-inner:hover {
+  border-color: rgba(201, 168, 76, 0.8);
+  background: rgba(20, 15, 25, 0.95);
+}
+
+.card-inner h3 {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: #c9a84c;
+  margin: 0 0 4px;
+}
+
+.card-inner .category {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #9999bb;
+  margin: 0 0 10px;
+}
+
+.card-inner p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #b8b6b0;
+  margin: 0 0 12px;
+}
+
+.card-inner .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.card-inner .tag {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  color: #c9a84c;
+  border-radius: 1px;
+}
+
+/* Contact section */
+.contact-inner {
+  font-family: var(--font-bebas), sans-serif;
+  text-align: center;
+  pointer-events: auto;
+  color: #e8e6e0;
+}
+
+.contact-inner a {
+  display: inline-block;
+  color: #c9a84c;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+  padding-bottom: 3px;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.contact-inner a:hover {
+  color: #e8c97a;
+  border-color: #e8c97a;
 }

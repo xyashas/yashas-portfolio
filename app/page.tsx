@@ -1,16 +1,12 @@
-import InkCanvas from "@/components/InkCanvas";
-import HeroName from "@/components/HeroName";
+import dynamic from "next/dynamic"
+
+// Canvas must be client-only (no SSR)
+const Scene = dynamic(() => import("@/components/Scene"), { ssr: false })
 
 export default function Home() {
   return (
-    <main className="relative w-full h-screen overflow-hidden bg-midnight flex items-center justify-center">
-      {/* Three.js ink particle layer — behind everything */}
-      <InkCanvas />
-
-      {/* Centered name, layered above the canvas */}
-      <div className="relative z-10 px-6">
-        <HeroName />
-      </div>
+    <main style={{ width: "100vw", height: "100vh", overflow: "hidden", background: "#0a0a0f" }}>
+      <Scene />
     </main>
-  );
+  )
 }
