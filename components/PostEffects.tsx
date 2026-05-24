@@ -14,10 +14,10 @@ export default function PostEffects() {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        luminanceThreshold={0.55}
+        luminanceThreshold={0.8}
         luminanceSmoothing={0.85}
-        intensity={0.65}
-        mipmapBlur
+        intensity={0.3}
+        radius={0.4}
       />
       <ChromaticAberration
         offset={new THREE.Vector2(0.0008, 0.0008)}

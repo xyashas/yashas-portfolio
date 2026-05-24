@@ -4,7 +4,7 @@ import { useMemo, useRef, useEffect } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 
-const BLADE_COUNT = 7000
+const BLADE_COUNT = 3000
 
 // Tapered grass blade: 5 verts, 3 tris
 function createBladeGeometry(): THREE.BufferGeometry {
