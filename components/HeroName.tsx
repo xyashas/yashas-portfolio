@@ -9,7 +9,7 @@ export default function HeroName() {
       <motion.h1
         className="font-bebas text-ash-white leading-none tracking-[0.15em]"
         style={{
-          fontSize: "clamp(96px, 21vw, 272px)",
+          fontSize: "clamp(160px, 28vw, 580px)",
           willChange: "opacity, filter",
         }}
         initial={{ opacity: 0, filter: "blur(48px)" }}
